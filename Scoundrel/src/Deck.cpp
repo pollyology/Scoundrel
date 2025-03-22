@@ -6,6 +6,8 @@
  * to draw, print, and shuffle cards. Using for Scoundrel card game.
  * 
  * ====================== Update Log ======================
+ * -[2025-03-22]
+ * -    Updated drawCard() to clear hand before draw and added debug statement
  * - [2025-03-20]
  * -    Updated addCard() to use deck.insert() instead of push_back()
  * 
@@ -87,7 +89,7 @@ void Deck::shuffle()
  * 
  * @param hand Reference to the hand we want to add back into deck.
  */
-void Deck::addCard(const vector<Card>& hand)
+void Deck::addCard(vector<Card>& hand)
 {
     for (const Card& card : hand) 
     {
@@ -108,11 +110,13 @@ void Deck::addCard(const vector<Card>& hand)
  */
 vector<Card>& Deck::drawCard(int cards)
 {
+    hand.clear();
     for (int i = 0; i < cards && !deck.empty(); i++)
     {
         hand.push_back(deck.back());
         deck.pop_back();
     }
+    cout << "Drew: " << hand.size() << " cards!" << endl; // Debug statement
     return hand;
 }
 
