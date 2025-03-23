@@ -1,5 +1,13 @@
 /**
  * ====================== Update Log ======================
+ * - [2025-03-23]
+ * -    Implemented new game functions printEncounter() and message() for outputting text descriptions
+ * -    FIXED: Issue where combat displays negative damage
+ * -    Updated game loop logic to fix multiple bugs:
+ *      -   FIXED: Game would display "enter room" after every encounter
+ *      -   FIXED: Rooms wouldn't increment properly after displayRoom()
+ *      -   FIXED: Choosing an encounter would always result with first option being run
+ * 
  * - [2025-03-22]
  * -    Solved ANNOYING 'extra draw' bug by adding hand.clear() to drawCard()
  * -    Refactored while (encounters < 3) to for loop, using encounter as the iterator
@@ -7,7 +15,7 @@
  *      -   Room skip logic now breaks inner for loop by setting encounter = 3
  *      -   Draw new room logic doesn't use encounter conditional anymore
  * -    Updated new room logic to not need tempHand vector, improving clarity
- * -    
+ *     
  * - [2025-03-20]
  * -    Implemented new helper functions from game.h: 
  *      -   displayRoom(), promptRoom(), promptEncounter(), getRoomChoice(),
@@ -21,14 +29,24 @@
  * -    Encapsulate game logic into separate functions: createRoom(), printRoom(), encounterMenu()...
  * -    Create proper input validation for choices
  * -    Display Player HP
+ * -    Create a way for player to access discard pile to see what cards they've already completed:
+ *      -   Example:
+ *      -   Encounters completed: <discardPile.size()>      Cards left in dungeon: <myDeck.getDeck().size()>
+ * -    -   Diamonds (1/10 found)
+ *      -   card1...
+ *      -   Hearts (0/10 found)
+ *      -   ...
+ *      -   Clubs (2/13 fought)
+ *      -   card1, card2...
+ *      -   Spades  (4/13 fought)
+ *      -   card1, card2, card3, card4...
  * 
  * ====================== Known Bugs ======================
- * - [2025-03-20]
- * -    FIX: Game prompts "enter room" after each encounter
- *      -   "Enter Room" only prompts at the start of a new Room
  * 
  * ====================== Fixed Bugs :D ======================
- * -    FIXED: Game draws 8 cards after attempting to build new room, after 3 encounters
+ * -    FIXED: When choosing encounter, valid input only selects option [1]
+ * -    FIXED: Game prompts "enter room" after each encounter
+ *      -   "Enter Room" only prompts at the start of a new RoomFIXED: Game draws 8 cards after attempting to build new room, after 3 encounters
  *      -   Issue was within drawCard() logic; function saved the previous hand size
  *      -   without clearing it, thus drawing 7 cards total (4 from starting hand + 3 from new hand)
  * -    FIXED: Game skipping room when typing "1"
@@ -48,7 +66,7 @@ int main()
     vector<Card> discardPile;
     vector<Card> myHand = myDeck.drawCard(4); // Draws the starting hand
     
-    int room = 0;
+    int room = 1;
     int choice = -1;
     bool skipFlag = false; // Flips true if last room was skipped 
 
@@ -57,23 +75,30 @@ while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
 
     for (int encounter = 0; encounter < 3; encounter++)
     {
-        displayRoom(myHand); // Populates menu [1-4] with hand
+        displayRoom(myHand); // Populates menu with hand as options [1-4]
         cout << endl;
 
         choice = getRoomChoice(skipFlag); // Room choice menu
         
 
         if (choice == 0) { cout << "Quitting program."; return 0; } // Quit option selected
-        else if (choice == 1) { enterRoom(room, myHand); room++; } // Enter option selected
         else if (choice == 2) { skipRoom(myDeck, myHand); encounter = 3; }// Run option selected
-
+        else if (choice == 1) // Enter option selected
+        { 
+            while (myHand.size() > 1)
+            {
+                enterRoom(room, myHand); 
+                int cardChoice = promptEncounter(); // Prompt player to choose an encounter
+                Card& chosenCard = myHand[cardChoice - 1]; // Construct card from choice
+                runEncounter(game, chosenCard); // Run appropriate encounter from card
     
-        promptEncounter(); // Prompt choice
-        Card& chosenCard = myHand[choice - 1]; // Construct card from choice
-        runEncounter(game, chosenCard); // Run appropriate encounter from card
- 
-        myHand.erase(myHand.begin() + (choice - 1));
-        discardPile.push_back(chosenCard); // Move chosen card to discard pile after resolving encounter
+                myHand.erase(myHand.begin() + (choice - 1));
+                discardPile.push_back(chosenCard); // Move chosen card to discard pile after resolving encounter
+                encounter++;
+            } 
+            room++;
+        } 
+        
     }
     
     if (myDeck.getDeck().size() > 0)
@@ -87,3 +112,5 @@ while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
     cout << "Game Over." << endl; // TO DO: Make proper ending
     return 0;
 }
+
+
