@@ -4,6 +4,8 @@
  * Functionalites for running combat, weapon, and healing encounters. Implemented in Scoundrel.
  * 
  * * ====================== Update Log ======================
+ * - [2025-03-24] Updated promptEncounter() and getRoomChoice() to fix crashing issue
+ *   -  Updated input handling to prevent crashing from trying to access an out-of-memory element
  * - [2025-03-23] Updated documentation and added printEncounter() and message()
  * - [2025-03-20]   Created file.
  * -    Added encounter functions: runCombat(), runWeapon(), runHeal()
@@ -90,12 +92,12 @@ int getRoomChoice(const bool& skipFlag)
     do {
         choice = promptRoom(skipFlag);
         clearInput();
-    } while (choice < 0 || choice > 2);
+    } while (skipFlag ? choice < 0 || choice > 1 : choice < 0 || choice > 2);
     
     return choice;
 }
 
-int promptEncounter()
+int promptEncounter(int availableChoices)
 {
     int choice;
     do {
@@ -103,7 +105,7 @@ int promptEncounter()
         cin >> choice;
         cout << endl;
         clearInput();
-    } while (choice < 1 || choice > 4);
+    } while (choice < 1 || choice > availableChoices);
 
     return choice;
 }
@@ -161,6 +163,7 @@ void runEncounter(Game& game, const Card& chosenCard)
 void displayRoom(const vector<Card>& myHand)
 {
     cout << "You drew: \n\n";
+    
     for (int i = 0; i < myHand.size(); i++)
     {
         const Card& card = myHand[i];
