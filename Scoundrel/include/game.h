@@ -21,7 +21,7 @@ class Game
 // Input Handling
 int promptRoom(const bool& skipFlag);
 int getRoomChoice(const bool& skipFlag);
-int promptEncounter();
+int promptEncounter(int availableChoices);
 void clearInput();
 
 // Game Flow
