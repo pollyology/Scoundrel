@@ -1,5 +1,11 @@
 /**
  * ====================== Update Log ======================
+ * - [2025-03-24]
+ * -    Game now removes cards from deck to fit with Scoundrel rules
+ * -    Game now tracks player death and triggers game over properly
+ * -    Game now tracks skip room logic properly and prevent invalid inputs
+ * -    FIXED: Invalid inputs still being processed during encounter and room choices
+ * -    FIXED: Game crashing after skipping rooms or choosing an encounter out-of-bounds
  * - [2025-03-23]
  * -    Implemented new game functions printEncounter() and message() for outputting text descriptions
  * -    FIXED: Issue where combat displays negative damage
@@ -29,6 +35,8 @@
  * -    Encapsulate game logic into separate functions: createRoom(), printRoom(), encounterMenu()...
  * -    Create proper input validation for choices
  * -    Display Player HP
+ * -    Adjust card values: J = 11, Q = 12, K = 13, A = 14
+ * -    Implement weapon durability mechanic
  * -    Create a way for player to access discard pile to see what cards they've already completed:
  *      -   Example:
  *      -   Encounters completed: <discardPile.size()>      Cards left in dungeon: <myDeck.getDeck().size()>
@@ -61,6 +69,8 @@ int main()
     Player player("Player"); // Player object
     Game game(player); // Game object
     Deck myDeck; // Deck object
+    myDeck.remove();
+    // Debug statement - myDeck.printDeck(); 
 
     myDeck.shuffle();
     vector<Card> discardPile;
@@ -69,38 +79,43 @@ int main()
     int room = 1;
     int choice = -1;
     bool skipFlag = false; // Flips true if last room was skipped 
+    
 
 while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
 {   
-
+    
     for (int encounter = 0; encounter < 3; encounter++)
     {
         displayRoom(myHand); // Populates menu with hand as options [1-4]
+        cout << "Deck size after draw: " << myDeck.getDeck().size() << endl; // Debug statement
         cout << endl;
 
         choice = getRoomChoice(skipFlag); // Room choice menu
         
 
         if (choice == 0) { cout << "Quitting program."; return 0; } // Quit option selected
-        else if (choice == 2) { skipRoom(myDeck, myHand); encounter = 3; }// Run option selected
+        else if (choice == 2 && !skipFlag) { skipRoom(myDeck, myHand); skipFlag = true; encounter = 3; } // Run option selected
         else if (choice == 1) // Enter option selected
-        { 
+        {
+            skipFlag = false;
             while (myHand.size() > 1)
             {
                 enterRoom(room, myHand); 
-                int cardChoice = promptEncounter(); // Prompt player to choose an encounter
-                Card& chosenCard = myHand[cardChoice - 1]; // Construct card from choice
+                int cardChoice = promptEncounter(myHand.size()); // Prompt player to choose an encounter
+                Card chosenCard = myHand[cardChoice - 1]; // Construct card from choice
                 runEncounter(game, chosenCard); // Run appropriate encounter from card
+                if (player.getHP() <= 0) { break; }
     
-                myHand.erase(myHand.begin() + (choice - 1));
+                myHand.erase(myHand.begin() + (cardChoice - 1));
                 discardPile.push_back(chosenCard); // Move chosen card to discard pile after resolving encounter
                 encounter++;
+                
             } 
             room++;
         } 
-        
+        if (player.getHP() <= 0) { break; }
     }
-    
+    if (player.getHP() <= 0) { break; }
     if (myDeck.getDeck().size() > 0)
     { 
         Card firstCard = myHand[0]; // Preserve last card as first card in next hand
