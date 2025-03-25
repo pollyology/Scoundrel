@@ -24,8 +24,9 @@ class Deck
 public:
     Deck() { fillDeck(); };
     void fillDeck();
+    void remove();
     void shuffle();
-    void addCard(const vector<Card>& hand);
+    void addCard(vector<Card>& hand);
     vector<Card>& drawCard(int cards);
 
 
