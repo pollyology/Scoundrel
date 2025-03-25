@@ -6,10 +6,13 @@
  * to draw, print, and shuffle cards. Using for Scoundrel card game.
  * 
  * ====================== Update Log ======================
- * -[2025-03-22]
- * -    Updated drawCard() to clear hand before draw and added debug statement
- * - [2025-03-20]
- * -    Updated addCard() to use deck.insert() instead of push_back()
+ * - [2025-03-24]
+ * -    Added removeCard() for removing specific cards from deck
+ * -    Fixed addCard() and drawCard() crashing due to improper memory allocation
+ *      -   added hand.clear() to both functions to properly free vector
+ * 
+ * - [2025-03-22] Updated drawCard() to clear hand before draw and added debug statement
+ * - [2025-03-20] Updated addCard() to use deck.insert() instead of push_back()
  * 
  * - [2025-03-19]
  * -    Fully implemented Deck.cpp into Scoundrel
@@ -52,19 +55,31 @@ void Deck::fillDeck()
     string suit[4] = { "Clubs", "Spades", "Hearts", "Diamonds" };
     string rank[13] = { "Ace", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Jack", "Queen", "King" };
     // { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King" };
-
+    int cardValue;
     for (const string& cardSuit : suit)
     {
         for (int i = 0; i < 13; i++)
         {
             string cardName = rank[i] + " of " + cardSuit;
-            int cardValue = (i < 10) ? (i + 1) : 10; // defaults face card value to 10
+            if (rank[i] == "Ace") { cardValue = 14; }
+            else if (rank[i] == "Jack") { cardValue = 11; }
+            else if (rank[i] == "Queen") { cardValue = 12; }
+            else if (rank[i] == "King") { cardValue = 13; }
+            else { cardValue = (i < 10) ? (i + 1) : 10; } // defaults face card value to 10
 
             deck.push_back({ cardName, cardSuit, cardValue });
         }
     }
 }
 
+void Deck::remove()
+{ 
+    for (int i = deck.size(); i >= 0; i--) // Customized logic for Scoundrel rules
+    {
+        if (deck[i].suit == "Hearts" && deck[i].value > 10) { deck.erase(deck.begin() + i); }
+        else if (deck[i].suit == "Diamonds" && deck[i].value > 10) { deck.erase(deck.begin() + i); }
+    }
+}
 /**
  * @brief Shuffles deck using Fisher-Yates algorithm.
  * 
@@ -91,11 +106,11 @@ void Deck::shuffle()
  */
 void Deck::addCard(vector<Card>& hand)
 {
-    for (const Card& card : hand) 
+    for (const auto& card : hand) 
     {
         deck.insert(deck.begin(), card);
-        this->hand.pop_back();
     }
+    hand.clear();
 }
 
 /**
@@ -117,6 +132,7 @@ vector<Card>& Deck::drawCard(int cards)
         deck.pop_back();
     }
     cout << "Drew: " << hand.size() << " cards!" << endl; // Debug statement
+    cout << "Deck size after draw: " << deck.size() << endl; // Debug statement
     return hand;
 }
 
@@ -165,7 +181,6 @@ void Deck::printDeck()
         if (count % 4 == 0) { cout << endl; }
         else { cout << " "; }
     }
-
 }
 
 // ====================== Overloaded Operators ====================== 
