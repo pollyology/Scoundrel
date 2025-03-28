@@ -218,3 +218,40 @@ while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
     cout << "Game Over." << endl; // TO DO: Make proper ending
     return 0;
 }
+
+/* How to implement weapon durability mechanic?
+- 1. When equipped, a weapon's durability isn't set.
+
+- 2. When attacking with a weapon for the first time,
+- its durability becomes equal to the target monster's attack value.
+
+- 3. Once set, you can only attack monsters with an attack value lower
+- than your weapon's current durability score.
+
+- 4. Subsequent attacks will set your weapon's durability score equal
+- to the target monster's attack value.alignas
+
+- When you attack a monster with a weapon for the first time, it will gain a durability
+- score equal to the monster's attack value. After this, you can only target monsters
+- with an attack lower than the current durability. Future attacks will set durability score
+- to the target monster's attack lower until: either "breaking" at durability 2 or until you
+- equip a new weapon.
+
+PSEUDOCODE:
+if (monster.getAtk() >= weapon.getDurability) 
+{ cout << "[1] EQUIP WEAPON (Take " << full << " damage)\n"}
+else { cout << "[1] EQUIP WEAPON (Take " << reduced << " damage)\n"}
+
+damage -= useWeapon ? weapon.getAtk : 0
+
+Player::displayPlayerStatus(const Player& player)
+Player::displayPlayerStatus()
+{
+    cout << "[HP: " << player.getHP() << "/20" << " | " 
+         <<  "[Weapon: " << weapon.getName() << " " << "(Durability: " << weapon.getDurability() << " ]\n";
+}
+
+
+int getWeaponDurability() { return weapon.getDurability(); }
+string getWeaponName() { return weapon.getName(); }
+*/
