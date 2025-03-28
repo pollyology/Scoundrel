@@ -17,7 +17,7 @@
 using namespace std;
 
  /**
-  * @brief  Potions are consumable items that restores the Player's health.
+  * @brief Potions are consumable items that restores the Player's health.
   * (Scoundrel) Potions will take a Card object to set their name and healAmount.
   * 
   * e.g. A "Nine of Hearts" Card creates a Potion named "Nine of Hearts" that restores 9 health.
@@ -44,13 +44,16 @@ class Potion
 class Weapon
 {
   public:
-    Weapon(string name, int atk) : name(name), atk(atk) {}
+    Weapon() : name(""), atk(0), durability(0) {}  
+    Weapon(string name, int atk) : name(name), atk(atk), durability(atk) {}
     string getName() const { return name; };
     int getAtk() const { return atk; };
+    int getDurability() const { return durability; }
     
   private:
     string name;
     int atk;
+    int durability;
 };
 
 #endif
