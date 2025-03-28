@@ -32,11 +32,11 @@
  * -    Implemented game functions: runCombat(), runEquip(), runHeal()
  *
  * ====================== To Do ======================
- * -    Encapsulate game logic into separate functions: createRoom(), printRoom(), encounterMenu()...
- * -    Create proper input validation for choices
+ * -    DONE: Encapsulate game logic into separate functions: createRoom(), printRoom(), encounterMenu()...
+ * -    DONE: Create proper input validation for choices
  * -    Display Player HP
- * -    Adjust card values: J = 11, Q = 12, K = 13, A = 14
- * -    Implement weapon durability mechanic
+ * -    DONE: Adjust card values: J = 11, Q = 12, K = 13, A = 14
+ * -    DONE: Implement weapon durability mechanic
  * -    Create a way for player to access discard pile to see what cards they've already completed:
  *      -   Example:
  *      -   Encounters completed: <discardPile.size()>      Cards left in dungeon: <myDeck.getDeck().size()>
@@ -66,6 +66,33 @@
 
 int main() 
 {
+
+// cout << "WELCOME TO SCOUNDREL << endl;"
+/* cout << "[1] PLAY"
+        << "[2] TUTORIAL"
+        << "[3] QUIT"
+cin << choice;
+switch (choice) {
+    case 1: break;
+    case 2: cout << message("tutorial", 1) << endl;
+    case 3: cout << "Quitting game.." << endl; return 0;
+    default: cout << "Debug: Choice loop failed."
+}
+
+==============================================*/
+//gameMenu() or menuGame()
+int choice = -1;
+do {
+    cout << "WELCOME TO SCOUNDREL" << endl;
+    cout << "[1] PLAY " << "[2] TUTORIAL " << "[3] QUIT \n";
+    cin >> choice;
+    switch (choice) {
+        case 1: break;
+        case 2: cout << message("tutorial", 1) << "\n\n"; break;
+        case 3: cout << "Quitting game.." << endl; return 0; 
+    } 
+} while (choice < 1 || choice > 3);
+
     Player player("Player"); // Player object
     Game game(player); // Game object
     Deck myDeck; // Deck object
@@ -77,7 +104,7 @@ int main()
     vector<Card> myHand = myDeck.drawCard(4); // Draws the starting hand
     
     int room = 1;
-    int choice = -1;
+    choice = -1;
     bool skipFlag = false; // Flips true if last room was skipped 
     
 
