@@ -22,6 +22,7 @@ Player::Player(string name)
   this->name = name;
   hp = 20;
   atk = 0;
+  weapon = Weapon();
 }
 
 /**
@@ -37,11 +38,14 @@ Player::Player(string name)
 void Player::attack(const Monster& monster, bool useWeapon)
 {
   int damage = monster.getAtk();
-  damage -= useWeapon ? atk : 0;
+  int durability = weapon.getDurability();
+  if (durability > damage) { damage -= useWeapon ? weapon.getAtk() : atk; }
   damage = max(damage, 0);                   
 
   hp -= damage;
   hp = max(hp, 0);
+
+  durability = monster.getAtk();
 }
 
 /**
@@ -59,4 +63,4 @@ void Player::drink(const Potion& potion)
  * @param weapon The Weapon being equipped.
  */
 void Player::equip(const Weapon& weapon)
-{ atk = weapon.getAtk(); }
+{ this->weapon = weapon; }
