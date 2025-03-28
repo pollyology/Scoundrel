@@ -25,22 +25,25 @@
 void Game::runCombat(const Monster& m)
 {
     int choice = 0;
-    int reduced = max(m.getAtk() - player.getAtk(), 0);
+    int reduced = max(m.getAtk() - player.getWeaponDurability(), 0);
     int full = m.getAtk();
 
-    printEncounter(m.getAtk(), "monster"); // Prints the monster description
-    cout << "You face the " << m.getName() << ". \n\n"
-         << "[1] EQUIP WEAPON (Take " << reduced << " damage)\n"
-         << "[2] FIGHT BAREHANDED (Take " << full <<  " damage)\n "
+    printEncounter("monster", m.getAtk()); // Prints the monster description
+    cout << "You face the " << m.getName() << ". \n\n";
+    if (m.getAtk() >= player.getWeaponDurability()) { cout << "[1] EQUIP WEAPON (Take " << full << " damage)\n"; }
+    else { cout << "[1] EQUIP WEAPON (Take " << reduced << " damage)\n"; }
+    cout << "[2] FIGHT BAREHANDED (Take " << full <<  " damage)\n "
          << "How will you fight: ";
     cin >> choice;
     clearInput();
     cout << endl;
 
-    printEncounter(choice, "combat");
+    printEncounter("combat", choice);
     player.attack(m, choice == 1);
+
     cout << "You take " << (choice == 1 ? reduced : full) << " points of damage. "
-         << "You have " << player.getHP() << " HP remaining." << endl;
+         << "You have " << player.getHP() << " HP remaining." << endl
+         << "Your weapon loses " << m.getAtk() - player.getWeaponDurability() << " durability." << endl;
 }
 
 /**
@@ -52,7 +55,7 @@ void Game::runCombat(const Monster& m)
  */
 void Game::runEquip(const Weapon& w)
 {
-    printEncounter(w.getAtk(), "equip");
+    printEncounter("equip", w.getAtk());
     player.equip(w);
     cout << "You equipped the " << w.getName() << "." << endl;
 }
@@ -66,7 +69,7 @@ void Game::runEquip(const Weapon& w)
  */
 void Game::runHeal(const Potion& p)
 {
-    printEncounter(p.getHealAmount(), "heal");
+    printEncounter("heal", p.getHealAmount());
     player.drink(p);
     cout << "You drink the " << p.getName() << ", restoring " << p.getHealAmount() << " health points." << endl;
     cout << "You have " << player.getHP() << " health points left." << endl;
@@ -171,30 +174,34 @@ void displayRoom(const vector<Card>& myHand)
     }
 }
 
-void printEncounter(const int& value, const string& type)
+void printEncounter(const string& type, const int& value)
 {
-    if (type != "equip" && type != "heal" && type != "monster") { cout << message(value, type) << endl; return; }
-    if (value >= 1 && value <= 3) { cout << message(1, type) << endl; }
-    else if (value >= 4 && value <= 6) { cout << message(2, type) << endl; }
-    else if (value >= 7 && value <= 9) { cout << message(3, type) << endl; }
-    else if (value == 10) { cout << message(4, type) << endl; }
+    if (type != "equip" && type != "heal" && type != "monster") { cout << message(type, value) << endl; return; }
+
+    // Message handling for runEquip(), runHeal(), runCombat():
+    if (value >= 1 && value <= 3) { cout << message(type, 1) << endl; }
+    else if (value >= 4 && value <= 6) { cout << message(type, 2) << endl; }
+    else if (value >= 7 && value <= 9) { cout << message(type, 3) << endl; }
+    else if (value == 10) { cout << message(type, 4) << endl; }
 
     switch (value) {
     case 11:
-        cout << message(5, type) << endl; break;
+        cout << message(type, 5) << endl; break;
     case 12:
-        cout << message(6, type) << endl; break;
+        cout << message(type, 6) << endl; break;
     case 13:
-        cout << message(7, type) << endl; break;
+        cout << message(type, 7) << endl; break;
     case 14:
-        cout << message(8, type) << endl; break;
+        cout << message(type, 8) << endl; break;
     }
 }
 
 // ====================== Helper Functions ====================== 
 
-string message(int value, const string& type)
+string message(const string& type, int value)
 {
+    if (type == "tutorial") { return "This is a test statement for tutorial"; }
+
     if (type == "equip") { // Returns description of finding a weapon
         switch (value) {
         case 1: return "You find a low tier weapon: value is 1-3."; 
@@ -233,3 +240,8 @@ string message(int value, const string& type)
     return "Valid statement not found.";
 }
 
+void Game::displayPlayerStatus(const Player& player)
+{
+    cout << "[HP: " << player.getHP() << "/20" << " | " 
+         <<  "[Weapon: " << player.getWeaponName() << " " << "(Durability: " << player.getWeaponDurability() << " ]\n";
+}
