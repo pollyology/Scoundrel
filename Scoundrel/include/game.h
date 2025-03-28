@@ -13,6 +13,7 @@ class Game
     void runCombat(const Monster& m);
     void runEquip(const Weapon& w);
     void runHeal(const Potion& p);
+    void displayPlayerStatus(const Player& player);
 
   private:
     Player& player;  
@@ -31,8 +32,8 @@ void runEncounter(Game& game, const Card& chosenCard);
 
 // Display/Output
 void displayRoom(const vector<Card>& myHand);
-void printEncounter(const int& value, const string& type);
+void printEncounter(const string& type, const int& value);
 
 // Helper Functions
-string message(int value, const string& type);
+string message(const string& type, int value);
 #endif
