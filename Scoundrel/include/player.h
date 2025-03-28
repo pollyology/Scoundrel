@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "items.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -18,14 +19,21 @@ class Player
     void attack(const Monster& monster, bool useWeapon);
     void equip(const Weapon& weapon);
     void drink(const Potion& potion);
+
     
     int getHP() const { return hp; };
     int getAtk() const { return atk; };
+    int getWeaponAtk() const { return weapon.getAtk(); }
+    int getWeaponDurability() const { return weapon.getDurability(); }
+    string getWeaponName() const { return weapon.getName(); }
+    
   
   private:
     string name;
     int hp;
     int atk;
+    Weapon weapon;
 };
 
 #endif
+
