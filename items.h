@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+using std::string;
 
  /**
   * @brief Potions are consumable items that restores the Player's health.

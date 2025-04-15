@@ -3,6 +3,7 @@
 
 #include "items.h"
 #include <wchar.h>
+#include <iomanip>
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -11,7 +12,7 @@ class Potion;
 class Weapon;
 class Monster;
 
-using namespace std;
+using std::string;
 
 class Player
 {

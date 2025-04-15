@@ -64,12 +64,6 @@
  */
 #include "game.h"
 
-bool isPlayerDead (const Player& player)
-{
-    return player.getHP() <= 0;
-}
-
-
 int main() 
 {
     string playerName = startMenu(); // Prints the starting menu for game
@@ -79,6 +73,7 @@ int main()
     Deck myDeck; // Deck object
     myDeck.remove();
     myDeck.shuffle();
+    assignCardType(myDeck);
     vector<Card> discardPile;
     vector<Card> myHand = myDeck.drawCard(4); // Draws the starting hand
     
@@ -87,96 +82,82 @@ int main()
     game.setSkipFlag(false);
     bool skippedRoom = game.getSkipFlag(); // Tracks if last room was skipped
 
-while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
-{   
-    
-    for (int encounter = 0; encounter < 3; encounter++)
+
+    cout << "Removing cards...\n\n"
+    << "Shuffling deck...\n\n"
+    << "The dungeon is ready.\n\n";
+    pressEnterToContinue();
+    clearScreen();
+
+    while (myDeck.getDeck().size() > 0 && player.getHP() > 0)
     {   
-        printBanner("COMBAT");
-        displayRoom(myHand); // Populates menu with hand as options [1-4]
-        cout << endl;
-        choice = game.roomMenu(); // Room choice menu
         
-        if (choice == 0) // Quit option selected
-        { 
-            cout << "Quitting program."; 
-            return 0; 
-        }
-        else if (choice == 2 && !skippedRoom) // Run option selected
-        { 
-            game.skipRoom(myDeck, myHand);
-            game.setSkipFlag(true);
-            encounter = 3; 
-        } 
-        else if (choice == 1) // Enter option selected
-        {
-            game.setSkipFlag(false);
-            game.resetPotionFatigue();
-
-            while (true)
-            {
-                Card emptyCard = Card("empty"); // Initialized empty cards to be used as placeholder cards
-                int emptyCardCount = 0;
-
-                for (auto& card: myHand)
-                {
-                    if (card.name == "empty")
-                    {
-                        emptyCardCount++;
-                    }
-                }
-
-                if (emptyCardCount == 3)
-                {
-                    for (auto it = myHand.begin(); it != myHand.end(); )
-                    {
-                        if (it->name == "empty")
-                        {
-                            it = myHand.erase(it);
-                        }
-                        else
-                        {
-                            it++;
-                        }
-                    }
-                    break;
-                }
-
-
-                game.enterRoom(room, myHand); 
-                cout << endl; player.displayStatus(); cout << endl;
-                int cardChoice = promptEncounter(myHand.size()); // Prompt player to choose an encounter
-                Card chosenCard = myHand[cardChoice - 1]; // Construct card from choice
-                game.runEncounter(chosenCard); // Run appropriate encounter from card choice
-                if (isPlayerDead(player)) { break; }
-    
-                myHand.erase(myHand.begin() + (cardChoice - 1)); // Erase chosen card
-                myHand.insert(myHand.begin() + (cardChoice - 1), emptyCard);
-                discardPile.push_back(chosenCard); // Move chosen card to discard pile after resolving encounter
-                encounter++;
-                printBanner("ROOM " + to_string(room));
-                displayHand(myHand);
-                
+        for (int encounter = 0; encounter < 3; encounter++)
+        {   
+            displayRoom(myHand, myDeck); // Populates menu with hand as options [1-4]
+            cout << endl;
+            choice = game.roomMenu(); // Room choice menu
+            clearScreen();
+            
+            if (choice == 0) // Quit option selected
+            { 
+                cout << "Quitting program."; 
+                return 0; 
+            }
+            else if (choice == 2 && !skippedRoom) // Run option selected
+            { 
+                game.skipRoom(myDeck, myHand);
+                game.setSkipFlag(true);
+                encounter = 3; 
             } 
-            printBanner("LAST CARD");
-            displayHand(myHand);
-            room++;
-        } 
+            else if (choice == 1) // Enter option selected
+            {
+                game.setSkipFlag(false);
+                game.resetPotionFatigue();
+
+                while (true)
+                {
+                    Card emptyCard = Card("empty"); // Initializes empty cards to be used as placeholders
+                    int emptyCardCount = 0;
+
+                    for (auto& card : myHand) // Counts how many "empty" cards currently in hand
+                    {
+                        if (card.name == "empty") { emptyCardCount++; }
+                    }
+
+                    if (emptyCardCount == 3) // If there are 3 "empty" cards, clear them from hand
+                    {
+                        game.clearEmptyCards(myHand);
+                        break;
+                    }
+
+                    game.handleRoomEncounter(room, player, myHand, discardPile); // Handles all the encounters in current room
+                    if (isPlayerDead(player)) { break; }  
+                    encounter++;
+                } 
+
+                printBanner("LAST CARD");
+                displayHand(myHand);
+                room++;
+            } 
+            if (isPlayerDead(player)) { break; }
+        }
         if (isPlayerDead(player)) { break; }
+        game.refreshHand(myDeck, myHand);
     }
-    if (isPlayerDead(player)) { break; }
-    if (myDeck.getDeck().size() > 0)
-    { 
-        Card firstCard = myHand[0]; // Preserve last card as first card in next hand
-        myHand.clear();
-        myHand = myDeck.drawCard(3);
-        myHand.insert(myHand.begin(), firstCard);
+
+    if (isPlayerDead(player))
+    {
+        cout << "You won the game!" << endl;
     }
-}
-    cout << "Game Over." << endl; // TO DO: Make proper ending
+    else
+    {
+        cout << "Game Over." << endl; // TO DO: Make proper ending
+    }
     return 0;
 }
 
 // Make "pressEnterKey() functions?"
 // Clear screen after game events? "Drawing Room", "Combat", "Heal"
+
 

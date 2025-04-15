@@ -80,6 +80,7 @@ void Deck::remove()
         else if (deck[i].suit == "Diamonds" && deck[i].value > 10) { deck.erase(deck.begin() + i); }
     }
 }
+
 /**
  * @brief Shuffles deck using Fisher-Yates algorithm.
  * 
@@ -131,8 +132,9 @@ vector<Card>& Deck::drawCard(int cards)
         hand.push_back(deck.back());
         deck.pop_back();
     }
-    cout << "\n>>> You draw " << hand.size() << " cards! "; // Debug statement
-    cout << "Remaining cards in deck: " << deck.size() << endl; // Debug statement
+
+    //cout << "\n>>> You draw " << hand.size() << " cards! "; // Debug statement
+    //cout << "Remaining cards in deck: " << deck.size() << endl; // Debug statement
     return hand;
 }
 

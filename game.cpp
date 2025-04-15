@@ -16,54 +16,179 @@
 #include "messages.h"
 #include "Deck.h"
 
-using namespace std;
+using std::string, std::cout, std::endl;
 
-// ====================== Game Flow ====================== 
+const string PRESS_ENTER = "Press 'Enter' to continue...";
+const string ERASE_LINE = "\r\033[K";
+const string CLEAR_SCREEN = "\033[2J\033[H";
+
+// +==================================================+
+// |                    GAME FLOW                     |
+// +==================================================+
+
+string startMenu()
+{
+    string playerName;
+    
+    while(true)
+    {
+        cout << endl;
+        cout << welcomeToScoundrel() << endl << endl;
+        cout << "[1] PLAY " << "[2] TUTORIAL " << "[3] QUIT" << endl;
+        
+        int choice = getMenuChoice(1, 3);
+        string erase = ERASE_LINE; // Escape code for erasing current line
+
+        switch (choice)
+        {
+            case 1: cout << "\nWhat is your name?\n> ";
+                    cin >> playerName; 
+                    clearScreen();
+                    return playerName;
+
+            case 2: cout << message("tutorial", 1) << "\n\n";
+                    pressEnterToContinue();
+                    clearScreen();
+                    break;
+
+            case 3: cout << "Quitting game.." << endl;
+                    exit(0);
+        }
+    }
+    return "";
+}
+
+int Game::roomMenu()
+{ 
+    cout << "[1] ENTER ROOM? ";
+    if (!skipFlag) { cout << "[2] RUN AWAY? "; } // If room wasn't skipped last turn
+    cout << "[0] QUIT GAME?" << endl;  
+            
+    int choice = skipFlag ? getMenuChoice(0, 1) : getMenuChoice(0, 2);
+    cout << endl;
+
+    return choice;
+}
 
 void Game::enterRoom(int& room, const vector<Card>& myHand)
 {
-    cout << "You enter the room.\n\n";
-    cout << setfill('-') << setw(10) << ""
-        << " ROOM " << room << " "
-        << setw(10) << "" << setfill(' ') << endl;
-
-    for (int i = 0; i < myHand.size(); i++)
+    for (const Card& card : myHand)
     {
-        const Card& card = myHand[i];
-        string action;
-
-        if (card.suit == "Clubs" || card.suit == "Spades") { action = "FIGHT A MONSTER"; }
-        else if (card.suit == "Diamonds") { action = "EQUIP A WEAPON"; }
-        else if (card.suit == "Hearts") { action = "DRINK A POTION"; }
-        else { action = "--COMPLETED--"; }
-
-        if (card.suit == "empty")
+        if (card.name != "empty")
         {
-            cout << "[" << i + 1 << "] " << left << setw(16) << action << endl;
+            printBanner("YOU ENTER THE ROOM.");
+            cout << "\n";
+            cout << "It is dusty and the walls are lined with moss...\n";
+            printBanner("ROOM " + to_string(room));
+            displayHand(myHand);
         }
-        else
-        {
-            cout << "[" << i + 1 << "] " << left << setw(16) << action << " : "
-            << card.name << "(" << card.value << ")\n";
-        }
+        break;
     }
+
+    string choose = "+============== CHOOSE AN ENCOUNTER ==============+";
+    cout << choose << endl;
+    
+    for (int i = 0; i < myHand.size(); i++)
+    {   
+        const Card& card = myHand[i];
+        string action, statValue;
+        string rightPart = "  :  " + card.name;
+
+        if (card.suit != "empty")
+        {
+            if (card.type == "MONSTER") { action = "FIGHT A MONSTER"; statValue = "DMG"; }
+            else if (card.type == "WEAPON") { action = "EQUIP A WEAPON "; statValue = "ATK"; }
+            else if (card.type == "POTION") { action = "DRINK A POTION "; statValue = "HP"; }
+            statValue = "(" + to_string(card.value) + " " + statValue + ")";
+        }
+        else 
+        { 
+            action = "--COMPLETED--";
+            rightPart = ""; 
+        }  
+
+        string leftPart = " [" + to_string(i + 1) + "] " + action;
+        int totalWidth = choose.length();
+        int fullLength = leftPart.length() + rightPart.length();
+        int padding = totalWidth - fullLength - statValue.length() - 2;
+
+        cout << "|" <<  leftPart << rightPart << string(padding, ' ') << statValue << "|\n";
+    }
+    cout << ("+" + string(49, '=') + "+") << endl;
 } 
 
 void Game::skipRoom(Deck& myDeck, vector<Card>& myHand)
 {
-    cout << "You skipped the room, shuffling cards...\n\n"
-         << "Drawing new room...\n";
+    cout << "You skipped the room...\n\n";
+    cout << "Shuffling cards...\n\n";    
     myDeck.addCard(myHand);
     myHand = myDeck.drawCard(4);
     setSkipFlag(true);
 }
 
+void Game::refreshHand(Deck& deck, vector<Card>& hand)
+{
+    if (deck.getDeck().empty()) { return; } 
+
+    // Draws a new hand, while preserving the last card
+    Card preservedCard = hand[0];
+    hand = deck.drawCard(3);
+    hand.insert(hand.begin(), preservedCard);
+}
+
+void Game::clearEmptyCards(vector<Card>& hand)
+{
+    // Using remove_if from <algorithm>
+    // Syntax:  remove_if(start_iterator, end_iterator, condition)
+    // hand.erase(remove_if(), hand.emd());
+
+    hand.erase
+    (
+        remove_if(hand.begin(), hand.end(), [](const Card& card)
+        {
+            return card.name == "empty";
+        }),
+        hand.end()
+    );
+}
+
+// +=================================================+
+// |               ENCOUNTER HANDLING                |
+// +=================================================+
+
+void Game::handleRoomEncounter(int& room, Player& player, vector<Card>& myHand, vector<Card>& discardPile)
+{
+    enterRoom(room, myHand); 
+    cout << endl; 
+    player.displayStatus();
+    cout << endl;
+    
+    int cardChoice = promptEncounter(myHand.size()); // Prompt player to choose an encounter
+    Card chosenCard = myHand[cardChoice - 1]; // Construct card from choice
+    
+    runEncounter(chosenCard); // Run appropriate encounter from card choice
+    if (isPlayerDead(player)) { return; }
+    
+    myHand.erase(myHand.begin() + (cardChoice - 1)); // Erase chosen card
+    myHand.insert(myHand.begin() + (cardChoice - 1), Card("empty")); // Replace with empty card
+    discardPile.push_back(chosenCard); // Move chosen card to discard pile after resolving encounter
+    printBanner("ROOM " + to_string(room));
+    displayHand(myHand);
+}
+
+int promptEncounter(int availableChoices)
+{
+    cout << "Choose an encounter: " << endl;
+    int choice = getMenuChoice(1, availableChoices);
+    return choice;
+}
+
 void Game::runEncounter(const Card& chosenCard)
 {   
     displayCard(chosenCard);
-    if (chosenCard.suit == "Clubs" || chosenCard.suit == "Spades") { runCombat(Monster(chosenCard.name, chosenCard.value)); }
-    else if (chosenCard.suit == "Diamonds") { runEquip(Weapon(chosenCard.name, chosenCard.value)); }
-    else if (chosenCard.suit == "Hearts") { runHeal(Potion(chosenCard.name, chosenCard.value)); }
+    if (chosenCard.type == "MONSTER") { runCombat(Monster(chosenCard.name, chosenCard.value)); }
+    else if (chosenCard.type == "WEAPON") { runEquip(Weapon(chosenCard.name, chosenCard.value)); }
+    else if (chosenCard.type == "POTION") { runHeal(Potion(chosenCard.name, chosenCard.value)); }
 }
 
 void Game::runCombat(const Monster& m)
@@ -90,20 +215,26 @@ void Game::runCombat(const Monster& m)
     cout << endl;
 
     // Executes player combat
+    string header = "--------------------------------------------------\n";
+    cout << header;
     printEncounter("combat", choice);
     player.attack(m, choice == 1);
 
     // Calculate damage taken
     int damageTaken = hpBefore - player.getHP();
-    cout << ">>> You take " << damageTaken << " points of damage! "
-         << "Remaining HP: " << player.getHP() << "/" << player.getMaxHP() << endl
-         << ">>> Your weapon loses durability. " 
-         << "Weapon: " << player.getWeaponName()
-         << " (Durability: " << player.getWeaponDurability() << ")" 
-         << endl;
+    cout << "> You take " << damageTaken << " points of damage.\n"
+         << "> Remaining HP: " << player.getHP() << "/" << player.getMaxHP() << "\n";
 
+    if (damageTaken != fullDamage)
+    {
+        cout << "> Your weapon loses durability.\n" 
+             << "> Durability: " << player.getWeaponDurability() << "\n";
+    }
+
+    cout << header;
     printBanner("COMBAT ENDS.");
-    cout << "\nPress 'Enter' key to continue...\n";
+    pressEnterToContinue();
+    clearScreen();
 }
 
 void Game::runEquip(const Weapon& w)
@@ -130,81 +261,10 @@ void Game::runHeal(const Potion& p)
         setPotionFatigue(true);
 }
 
-// ====================== Input Handling ====================== 
+// +=================================================+
+// |                DISPLAY / OUTPUT                 |
+// +=================================================+
 
-int Game::roomMenu()
-{ 
-    cout << "[1] ENTER ROOM? ";
-    if (!skipFlag) { cout << "[2] RUN AWAY? "; } // If room wasn't skipped last turn
-    cout << "[0] QUIT GAME?" << endl;  
-            
-    int choice = skipFlag ? getMenuChoice(0, 1) : getMenuChoice(0, 2);
-    cout << endl;
-
-    return choice;
-}
-
-int promptEncounter(int availableChoices)
-{
-    cout << "Choose an encounter: " << endl;
-    int choice = getMenuChoice(1, availableChoices);
-    return choice;
-}
-
-/**
- * @brief Given a menu with choices numbered "a" to "b", return a choice based on user input.
- * 
- * This function will print a line for user input and automatically handle invalid inputs.
- * 
- * Use this after prompting user to make a menu choice,
- * call this funtion where you would normally use "cin >> choice".
- * 
- * @param minChoice This is the lowest menu option.
- * @param maxChoice This is the highest menu option.
- * @return int This is the choice determined by input and returned to menu function.
- */
-int getMenuChoice(int minChoice, int maxChoice)
-{
-    int choice = -1;
-    string input;
-    string erase = "\r\033[K"; // Escape code for clearing from cursor to end of line
-    
-
-    // Keep this commented for now, this allows single line reuse,
-    // but for some reason creates an extra ">" when entering a room.
-    // string erase = "\033[F\033[2K" 
-
-    while (true) // Airtight input validation block, could probably copy-paste template for other menu functions
-    {
-        cout << "r\033[2K> "; // Clear entire line then print "> "
-        getline(cin, input);
-
-        bool isValidInput = !input.empty() && isdigit(input[0]) && input.size() == 1; 
-        if (!isValidInput) // Checks if input is a valid single-digit number
-        {
-            cout << erase;
-            continue; // Restart loop
-        }
-
-        try
-        {
-            choice = stoi(input);
-            if (choice >= minChoice && choice <= maxChoice) { return choice; } // Checks if choice is within range
-            else { cout << erase; }
-        }
-        catch (const out_of_range& e)
-        {
-            cout << erase;
-        }
-        catch (const invalid_argument& e)
-        {
-            cout << erase;
-        }
-    }
-    
-}
-
-// ====================== Display/Output ======================
 void displayCard(const Card& card)
 {
    // Given a card, use 7 rows to print a text version of it
@@ -223,6 +283,7 @@ void displayCard(const Card& card)
    string asciiCard = borderRow + leftCorner + emptyRow + middleRow + emptyRow + rightCorner + borderRow;
    cout << asciiCard << endl;
 }
+
 void displayHand(const vector<Card>& myHand)
 {
     for (int row = 0; row < 7; row++) // Prints a playing card by printing 7 rows of characters
@@ -265,24 +326,24 @@ void displayHand(const vector<Card>& myHand)
     cout << endl;
 }
 
-
-void displayRoom(const vector<Card>& myHand)
+void displayRoom(const vector<Card>& myHand, Deck& myDeck)
 {
-    cout << endl;
-    cout << "--------------------------------------------------" << endl;
-    cout << endl;
-    cout << "You drew: \n\n";
+    //int handSize = myHand.size();
+    int deckSize = myDeck.getDeck().size();
 
+    //cout << "\nYou draw " + to_string(handSize) + " cards!\n\n"
+    printBanner("DRAWING NEW ROOM");
+    cout << "\nRemaining cards in deck: " + to_string(deckSize) + "\n";
+    cout << "\n";
+    
     displayHand(myHand);    
-
     for (int i = 0; i < myHand.size(); i++)
     {
         const Card& card = myHand[i];
         cout << "[" << i + 1 << "] " << card.name << "\n";
-        
     }
     cout << endl;
-    cout << "--------------------------------------------------" << endl;
+    cout << "--------------------------------------------------\n";
 }
 
 void printEncounter(const string& type, const int& value)
@@ -307,7 +368,40 @@ void printEncounter(const string& type, const int& value)
     }
 }
 
-// ====================== Helper Functions ====================== 
+// +=================================================+
+// |               HELPER FUNCTIONS                  |
+// +=================================================+
+
+void assignCardType(Deck& deck)
+{
+    for (Card& card : deck.getDeck())
+    {
+        if (card.suit == "Clubs" || card.suit == "Spades") { card.type = "MONSTER"; }
+        else if (card.suit == "Diamonds") { card.type = "WEAPON"; }
+        else if (card.suit == "Hearts") { card.type = "POTION"; }
+    }
+}
+
+bool isPlayerDead(const Player& player)
+{
+    return player.getHP() <= 0;
+}
+
+void pressEnterToContinue()
+{
+    cout << PRESS_ENTER;
+    if (cin.peek() != '\n')
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    cin.get();
+}
+
+void clearScreen()
+{
+    cout << CLEAR_SCREEN;
+}
+
 void printBanner(const string& message)
 {
    int textLength = message.length();
@@ -321,31 +415,66 @@ void printBanner(const string& message)
    cout << borderRow << middleRow << borderRow;
 }
 
-string startMenu()
+void printHeader(const string& message)
 {
-    cout << endl;
-    cout << welcomeToScoundrel() << endl << endl;
-    cout << "[1] PLAY " << "[2] TUTORIAL " << "[3] QUIT" << endl;
-     
-    int choice = getMenuChoice(1, 3);
-    string playerName;
-    string erase = "\033[F\033[2K"; // Escape code for erasing current line
-    switch (choice)
+   int textLength = message.length();
+   bool isEven = (textLength % 2 == 0);
+   int width = isEven ? 50 : 49; 
+   int padWidth = width - textLength - 2;
+   
+   string topRow = "+" + string(width - 2, '=') + "+\n";
+   string bottomRow = "+" + string(width - 2, '-') + "+\n";
+   string middleRow = "|" + string(padWidth / 2, ' ') + message + string(padWidth / 2, ' ') + "|\n";
+
+   cout << topRow << middleRow << bottomRow;
+}
+
+
+int getMenuChoice(int minChoice, int maxChoice)
+{
+    int choice = -1;
+    string input;
+    string erase = "\r\033[K"; // Escape code for clearing from cursor to end of line
+    
+
+    // Keep this commented for now, this allows single line reuse,
+    // but for some reason creates an extra ">" when entering a room.
+    // string erase = "\033[F\033[2K" 
+
+    while (true) // Airtight input validation block, could probably copy-paste template for other menu functions
     {
-        case 1: cout << "\nWhat is your name?\n> ";
-                cin >> playerName; 
-                return playerName;
+        cout << "r\033[2K> "; // Clear entire line then print "> "
+        getline(cin, input);
 
-        case 2: cout << message("tutorial", 1) << "\n\n";
-                cout << "Press 'Enter' key to continue." << endl;
-                cin.get();
-                break;
+        if (input == "Quit" || input == "quit")
+        {
+            cout << "Quitting program..." << endl;
+            exit(0);
+        }
 
-        case 3: cout << "Quitting game.." << endl;
-                exit(0);
+        bool isValidInput = !input.empty() && isdigit(input[0]) && input.size() == 1; 
+        if (!isValidInput) // Checks if input is a valid single-digit number
+        {
+            cout << erase;
+            continue; // Restart loop
+        }
+
+        try
+        {
+            choice = stoi(input);
+            if (choice >= minChoice && choice <= maxChoice) { return choice; } // Checks if choice is within range
+            else { cout << erase; }
+        }
+        catch (const out_of_range& e)
+        {
+            cout << erase;
+        }
+        catch (const invalid_argument& e)
+        {
+            cout << erase;
+        }
     }
-
-    return "";
+    
 }
 
 string message(const string& type, int value)

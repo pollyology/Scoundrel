@@ -42,10 +42,13 @@ void Player::attack(const Monster& monster, bool useWeapon)
   int damage = monster.getAtk();
   int durability = weapon.getDurability();
   
-  if (useWeapon) { damage -= (durability > monster.getAtk()) ? weapon.getAtk() : atk; }
+  if (useWeapon) 
+  { 
+    damage -= (durability > monster.getAtk()) ? weapon.getAtk() : atk;
+    weapon.setDurability(monster.getAtk());
+  }
   else {damage -= atk; }
-  weapon.setDurability(monster.getAtk());
-
+  
   damage = max(damage, 0);                   
 
   hp -= damage;
@@ -74,20 +77,31 @@ void Player::displayStatus()
 {
   int HP = getHP();
   int maxHP = getMaxHP();
+  string status = "+================= STATUS ================+";
+  int width = status.length() - 4;
+  string hpDisplay = "HP: " + to_string(HP) + "/" + to_string(maxHP) + "  ";
+  string weaponDisplay = "Weapon: " + getWeaponName();
+  string atkDisplay = "Attack: " + to_string(weapon.getAtk());
+  string durableDisplay = "(Durability: " + to_string(getWeaponDurability()) + ')';
+
+  if (getWeaponName() == "None") { atkDisplay = ""; durableDisplay = ""; }
+  int padding = width - (atkDisplay.length() + durableDisplay.length());
+  string statsDisplay = atkDisplay + string(padding, ' ') + durableDisplay;
   
-    cout << "\n==================== " << name << " ====================\n"
-         << "[HP: " << HP << "/" << maxHP << "  [" << getHealthBar() << "]\n" 
-         << "[Weapon: " << getWeaponName() 
-         << " (Durability: " << getWeaponDurability() << ")]\n"
-         << "========================================================\n" << endl;
+    cout << "+================ STATUS ================+\n";
+    cout << "| " << left << setw(width) << name << "|\n";
+    cout << "| " << hpDisplay << string(7, ' ') << getHealthBar() << " |\n";
+    cout << "| " << left << setw(width) << weaponDisplay << "|\n";
+    cout << "| " << statsDisplay << "|\n";
+    cout << "+========================================+\n";
 }
 
 string Player::getHealthBar() const
 {
   int HP = getHP();
   int maxHP = getMaxHP();
-  int maxHearts = 10;
-  int heartsLeft = HP / 2;
+  int maxHearts = 20; // To scale to 10 hearts, set to 10.
+  int heartsLeft = HP; // To scale to 10 hearts, set to HP / 2.
 
   const string colorRed = "\033[31m";
   const string reset = "\033[0m";
