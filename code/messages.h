@@ -2,68 +2,6 @@
 #define MESSAGES_H
 
 #include <iostream>
-<<<<<<< HEAD
-#include <string>
-#include <cctype>
-
-using std::string;
-
-const string TUTORIAL_MESSAGE = R"(
-==========================================
-       SCOUNDREL: A Solo Dungeon Crawl
-==========================================
-
-Goal:
-Explore a dungeon made from a card deck. 
-Fight monsters, equip weapons, and use potions.
-Survive all rooms to win!
-
-------------------------------------------
-Setup:
-- Use a 52-card deck (remove red face cards & Aces)
-- Start with 20 health
-- Each room = 4 cards (play 3, carry 1)
-- You can skip a room (but not two in a row)
-
-------------------------------------------
-Card Types & Rules:
-
-Clubs ♣ & Spades ♠ = Monster
-Diamonds ♦ = Weapon
-Hearts ♥ = Potion
-
-[Card Values]
-- Number cards: 2 - 10
-- Jack = 11, Queen = 12, King = 13, Ace = 14
-
-[Monsters - ♣ ♠]
-- Damage = card value
-
-[Weapons - ♦]
-- Equip 1 at a time
-- Can only attack weaker monsters than last one beaten
-- Reduces damage taken
-
-[Potions - ♥]
-- Heal = potion value
-- Only 1 potion works per room
-
-------------------------------------------
-Combat:
-- Pick a monster: you win the fight, but take damage
-- No weapon = full damage
-- Equipped weapon = damage reduced
-- Weapon weakens after each use
-
-------------------------------------------
-Winning:
-- Clear all rooms (deplete the deck)
-- If health drops to 0, you lose
-
-==========================================
-           GOOD LUCK, SCOUNDREL!
-==========================================)";
-=======
 #include <map>
 
 
@@ -136,7 +74,6 @@ MessageType getMonsterMessageType(int value);
 MessageType getCombatMessageType(const string& type, int value);
 
 extern const std::map<MessageType, string> messageMap;
->>>>>>> ed9f8fd (Update project files)
 
 // Total unique messages = 50  + 2 (Intro and Ending)
 /**
@@ -212,50 +149,6 @@ One precise thrust. The blade sinks deep.
 
 The beast heaves a final gasp... then silence.)";
 
-<<<<<<< HEAD
-const string COMBAT_SPEAR_2;
-const string COMBAT_BROADSWORD_3;
-
-
-string toUpperCase(const string& input)
-{
-       string result = input;
-       for (char& ch : result)
-       {
-              ch = toupper(ch);
-       }
-       return result;
-}
-
-void intro(string& name)
-{
-       
-};
-
-       const string LETTER_1 = R"(
-       ------------------------------------------------------------
-       DEAR POLLY,
-
-       You owe more than coin.
-
-       The Guild kept you alive when the streets would have swallowed you whole.
-
-       We trained you, armed you, and looked the other way more times than you deserve.
-
-       Now it’s time to pay up.
-
-       The Old Depths have reopened. No one's made it past the first floor in years—
-       but there's something down there we need. Something *valuable*. 
-       You’ll know it when you see it.
-
-       Make it back alive, and your debt is cleared. Fail, and... 
-       well, we’ll consider your silence partial payment.
-
-       Good luck, Scoundrel. You’re going to need it.
-
-       — G
-       ------------------------------------------------------------
-=======
 
 const string LETTER_1 = R"(
 ------------------------------------------------------------
@@ -280,6 +173,5 @@ Good luck, Scoundrel. You’re going to need it.
 
 — G
 ------------------------------------------------------------
->>>>>>> ed9f8fd (Update project files)
 )";
 #endif
