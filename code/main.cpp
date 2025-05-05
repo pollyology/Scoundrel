@@ -71,8 +71,11 @@ int main()
     Game game(player); // Game object
 
     Deck myDeck; // Deck object
+    cout << "Removing cards...\n";
     myDeck.remove();
+    cout << "Shuffling deck...\n";
     myDeck.shuffle();
+    cout << "Assigning types...\n\n";
     assignCardType(myDeck);
     vector<Card> discardPile;
     vector<Card> myHand = myDeck.drawCard(4); // Draws the starting hand
@@ -81,11 +84,9 @@ int main()
     int choice = -1;
     game.setSkipFlag(false);
     bool skippedRoom = game.getSkipFlag(); // Tracks if last room was skipped
-
-
-    cout << "Removing cards...\n\n"
-    << "Shuffling deck...\n\n"
-    << "The dungeon is ready.\n\n";
+    
+    cout << "The dungeon is ready.\n\n";
+    //cout << "[DEBUG] Next char in buffer: " << cin.peek() << endl;
     pressEnterToContinue();
     clearScreen();
 

@@ -32,13 +32,72 @@ You find, slumped against the wall, the skeleton of a long-dead adventurer.
 7-9: Royal Sword
  
 10: Lost Knight's Sword
- 
+ You could barely call it a sword. The weapon is colossal- 
+nearly your height, chipped and blackened by time.
+
+Yet even dulled, its iron hums with weight and finality.
 
 HEALING POTIONS
 1-3: Minor healing
-4-6: Major healing
-7-9: Altar
-10: Fountain
+4-6: Moderate healing
+7-9: Major healing
+10: Altar/Fountain of Healing
+
+Heal Messages (4 unique messages)
+Minor Heal (1-3 Heal): 
+"You drink the healing potion, and a mild warmth spreads through your body.
+ The aches and pains dull, but it's not enough to fully restore your strength."
+
+Moderate Heal (4-6 Heal):
+"The healing potion goes down smooth, and you feel a surge of energy.
+ Your wounds start to close, and your body regains some of its strength."
+
+Major Heal (7-9 Heal): 
+"You drink the potion, and a rush of warmth floods your system. 
+ Your body feels revitalized, your wounds nearly gone. 
+ You're back on your feet, stronger than before."
+
+Altar of Healing (10 Heal): 
+"You kneel before the altar, and a golden light envelops you.
+ Your wounds vanish completely, and you feel an overwhelming sense
+ of peace and vitality course through your body."
+
+🍵 1–3: Minor Heal — "Tincture of Herbs"
+A faint trail of dried blood leads to a collapsed figure slumped against the wall.
+Beside them lies a leather satchel, torn open, its contents spilled across the floor.
+Among broken vials and shattered glass, one small bottle remains intact—
+a tincture of herbs, bitter on the tongue but potent enough to dull the pain.
+
+You drink it. Warmth spreads through your limbs. The worst of your wounds begin to knit.
+
+🧪 4–6: Moderate Heal — "Bandaged Cache"
+You stumble upon a makeshift camp tucked behind a fallen pillar.
+The fire’s long gone cold, but a canvas pack rests beneath a stone altar,
+filled with dusty bandages, dried poultices, and a sealed waterskin.
+
+You patch yourself up, the scent of herbs and ash lingering in the air.
+It's not elegant, but it’ll hold. You feel steadier.
+
+🕯️ 7–9: Major Heal — "Sanctuary Shrine"
+A narrow corridor opens into a small sanctuary—walls carved with sigils of peace and healing.
+Melted candlewax pools beneath cracked sconces, and a statue of a forgotten goddess watches silently.
+At her feet, offerings lie untouched: healing salves, linen wrappings, and a basin of clean water.
+
+You kneel, and tend to your wounds. The room hums with stillness,
+as if the air itself wills your body to mend.
+
+⛪ 10: Altar of Healing — "The Font Eternal"
+You descend into a vaulted chamber, the stonework untouched by time.
+Braziers flicker with pale blue flame, casting long shadows over intricate murals—
+scenes of warriors blessed, restored, reborn.
+
+At the center stands a marble font filled with shimmering water.
+As your hands cup the liquid, it glows faintly—cool and luminous.
+
+You drink deeply. Light floods your body. Every wound closes.
+For a moment, it feels as if death itself would hesitate.
+
+
 
 FACING MONSTERS
 1-3: Small creature

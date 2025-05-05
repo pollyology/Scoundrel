@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+using std::string;
 /**
   * @brief  Monsters are hostile entities that can reduce the Player's HP to 0, ending the game.
   * Players use Potions and/or Weapons to counteract Monster damage.
@@ -25,13 +25,13 @@ using namespace std;
 class Monster
 {
   public:
-    Monster(string name, int value) : name(name), atk(value) {}
-    string getName() const { return name; };
-    int getAtk() const { return atk; }; 
+    Monster(string t_name, int t_atk) : m_name(t_name), m_atk(t_atk) {}
+    string getName() const { return m_name; };
+    int getAtk() const { return m_atk; }; 
   
   private:
-    string name;
-    int atk;
+    string m_name;
+    int m_atk;
 };
 
 #endif

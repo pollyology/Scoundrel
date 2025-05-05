@@ -226,7 +226,8 @@ ostream& operator<<(ostream& os, const vector<Card>& cards)
 CardDisplay getCardDisplay(const Card& card)
 {
     string colorRed = "\033[31m";
-    string colorBlack = "\033[30m";
+    string colorWhite = "\033[97m";
+    string colorBlue = "\033[94m";
     string reset = "\033[0m";
     string symbol = card.suit == "Hearts" ? colorRed + "♥" + reset :
                     card.suit == "Diamonds" ? colorRed + "♦" + reset :
@@ -235,7 +236,7 @@ CardDisplay getCardDisplay(const Card& card)
                           card.value == 11 ? "J" :
                           card.value == 12 ? "Q" :
                           card.value == 13 ? "K" : "A";
-    string color = (card.suit == "Hearts" || card.suit == "Diamonds") ? colorRed : colorBlack;
+    string color = (card.suit == "Hearts" || card.suit == "Diamonds") ? colorRed : colorBlue;
     symbol = color + symbol + reset; 
 
     return CardDisplay{displayValue, symbol};

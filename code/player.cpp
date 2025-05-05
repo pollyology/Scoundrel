@@ -18,13 +18,13 @@ using namespace std;
  * @brief Constructs a Player with a name, 20 HP, and 0 attack.
  * @param name The name of the Player.
  */
-Player::Player(string name)
+Player::Player(string t_name)
 {
-  this->name = name;
-  maxHP = 20;
-  hp = 20;
-  atk = 0;
-  weapon = Weapon();
+  this->m_name = t_name;
+  m_maxHP = 20;
+  m_hp = 20;
+  m_atk = 0;
+  m_weapon = Weapon();
 }
 
 /**
@@ -40,19 +40,19 @@ Player::Player(string name)
 void Player::attack(const Monster& monster, bool useWeapon)
 {
   int damage = monster.getAtk();
-  int durability = weapon.getDurability();
+  int durability = m_weapon.getDurability();
   
   if (useWeapon) 
   { 
-    damage -= (durability > monster.getAtk()) ? weapon.getAtk() : atk;
-    weapon.setDurability(monster.getAtk());
+    damage -= (durability > monster.getAtk()) ? m_weapon.getAtk() : m_atk;
+    m_weapon.setDurability(monster.getAtk());
   }
-  else {damage -= atk; }
+  else {damage -= m_atk; }
   
   damage = max(damage, 0);                   
 
-  hp -= damage;
-  hp = max(hp, 0);
+  m_hp -= damage;
+  m_hp = max(m_hp, 0);
 }
 
 /**
@@ -62,16 +62,16 @@ void Player::attack(const Monster& monster, bool useWeapon)
 void Player::drink(const Potion& potion, bool fatigue)
 {
   if (fatigue) { return; } // If potionFatigue from game.h == true, then potion has no effect
-  hp += potion.getHealAmount();
-  hp = min(hp, 20);
+  m_hp += potion.getHealAmount();
+  m_hp = min(m_hp, 20);
 }
 
 /**
  * @brief Equips a Weapon, updating the Player's attack value.
  * @param weapon The Weapon being equipped.
  */
-void Player::equip(const Weapon& weapon)
-{ this->weapon = weapon; }
+void Player::equip(const Weapon& t_weapon)
+{ this->m_weapon = t_weapon; }
 
 void Player::displayStatus()
 {
@@ -79,19 +79,20 @@ void Player::displayStatus()
   int maxHP = getMaxHP();
   string status = "+================= STATUS ================+";
   int width = status.length() - 4;
-  string hpDisplay = "HP: " + to_string(HP) + "/" + to_string(maxHP) + "  ";
-  string weaponDisplay = "Weapon: " + getWeaponName();
-  string atkDisplay = "Attack: " + to_string(weapon.getAtk());
-  string durableDisplay = "(Durability: " + to_string(getWeaponDurability()) + ')';
+  string o_hp = "HP: " + to_string(HP) + "/" + to_string(maxHP) + "  ";
+  string o_weapon = "Weapon: " + getWeaponName();
+  string o_atk = "Attack: " + to_string(m_weapon.getAtk());
+  string o_durability = "(Durability: " + to_string(getWeaponDurability()) + ')';
 
-  if (getWeaponName() == "None") { atkDisplay = ""; durableDisplay = ""; }
-  int padding = width - (atkDisplay.length() + durableDisplay.length());
-  string statsDisplay = atkDisplay + string(padding, ' ') + durableDisplay;
+  if (getWeaponName() == "None") { o_atk = ""; o_durability = ""; }
+  if (getWeaponDurability() == 99) { o_durability = ""; }
+  int padding = width - (o_atk.length() + o_durability.length());
+  string statsDisplay = o_atk + string(padding, ' ') + o_durability;
   
     cout << "+================ STATUS ================+\n";
-    cout << "| " << left << setw(width) << name << "|\n";
-    cout << "| " << hpDisplay << string(7, ' ') << getHealthBar() << " |\n";
-    cout << "| " << left << setw(width) << weaponDisplay << "|\n";
+    cout << "| " << left << setw(width) << m_name << "|\n";
+    cout << "| " << o_hp << string(7, ' ') << getHealthBar() << " |\n";
+    cout << "| " << left << setw(width) << o_weapon << "|\n";
     cout << "| " << statsDisplay << "|\n";
     cout << "+========================================+\n";
 }

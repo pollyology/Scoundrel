@@ -2,6 +2,7 @@
 #define MESSAGES_H
 
 #include <iostream>
+<<<<<<< HEAD
 #include <string>
 #include <cctype>
 
@@ -62,6 +63,80 @@ Winning:
 ==========================================
            GOOD LUCK, SCOUNDREL!
 ==========================================)";
+=======
+#include <map>
+
+
+using std::string;
+
+enum class MessageType
+{
+       // Game
+       GameIntro,
+       GameEnd,
+       GameOver,
+       Tutorial,
+
+       // Weapons
+       EquipLow,
+       EquipMid,
+       EquipHigh,
+       EquipLegend,
+
+       // Potions
+       HealMinor,
+       HealModerate,
+       HealMajor,
+       HealAltar,
+
+       // Monsters
+       MonsterSmall,
+       MonsterMedium,
+       MonsterLarge,
+       
+       MonsterBoss,
+       MonsterJack,
+       MonsterQueen,
+       MonsterKing,
+       MonsterAce,
+
+       // Combat
+       CombatEquipped,
+       CombatUnequipped,
+
+       DAGGER_PlayerHurtNone,
+       DAGGER_PlayerHurtLow,
+       DAGGER_PlayerHurtMid,
+       DAGGER_PlayerHurtHigh,
+       
+       SWORD_PlayerHurtNone,
+       SWORD_PlayerHurtLow,
+       SWORD_PlayerHurtMid,
+       SWORD_PlayerHurtHigh,
+
+       SPEAR_PlayerHurtNone,
+       SPEAR_PlayerHurtLow,
+       SPEAR_PlayerHurtMid,
+       SPEAR_PlayerHurtHigh,
+
+       CLAYMORE_PlayerHurtNone,
+       CLAYMORE_PlayerHurtLow,
+       CLAYMORE_PlayerHurtMid,
+       CLAYMORE_PlayerHurtHigh,
+
+       // Debug
+       Invalid,
+       
+};
+
+MessageType getMessageType(const string& type, int value);
+MessageType getEquipMessageType(int value);
+MessageType getPotionMessageType(int value);
+MessageType getMonsterMessageType(int value);
+MessageType getCombatMessageType(const string& type, int value);
+
+extern const std::map<MessageType, string> messageMap;
+>>>>>>> ed9f8fd (Update project files)
 
 // Total unique messages = 50  + 2 (Intro and Ending)
 /**
@@ -137,6 +212,7 @@ One precise thrust. The blade sinks deep.
 
 The beast heaves a final gasp... then silence.)";
 
+<<<<<<< HEAD
 const string COMBAT_SPEAR_2;
 const string COMBAT_BROADSWORD_3;
 
@@ -179,5 +255,31 @@ void intro(string& name)
 
        — G
        ------------------------------------------------------------
+=======
+
+const string LETTER_1 = R"(
+------------------------------------------------------------
+DEAR POLLY,
+
+You owe more than coin.
+
+The Guild kept you alive when the streets would have swallowed you whole.
+
+We trained you, armed you, and looked the other way more times than you deserve.
+
+Now it’s time to pay up.
+
+The Old Depths have reopened. No one's made it past the first floor in years—
+but there's something down there we need. Something *valuable*. 
+You’ll know it when you see it.
+
+Make it back alive, and your debt is cleared. Fail, and... 
+well, we’ll consider your silence partial payment.
+
+Good luck, Scoundrel. You’re going to need it.
+
+— G
+------------------------------------------------------------
+>>>>>>> ed9f8fd (Update project files)
 )";
 #endif

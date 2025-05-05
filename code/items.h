@@ -25,13 +25,13 @@ using std::string;
 class Potion
 {
   public:
-    Potion(string name, int heal) : name(name), healAmount(heal) {}
-    string getName() const { return name; };
-    int getHealAmount() const { return healAmount; };
+    Potion(string t_name, int t_heal) : m_name(t_name), m_healAmount(t_heal) {}
+    string getName() const { return m_name; };
+    int getHealAmount() const { return m_healAmount; };
     
   private:
-    string name;
-    int healAmount;
+    string m_name;
+    int m_healAmount;
     
 };
 
@@ -44,19 +44,32 @@ class Potion
 class Weapon
 {
   public:
-    Weapon() : name("None"), atk(0), durability(0) {}  
-    Weapon(string name, int atk) : name(name), atk(atk), durability(99) {}
-    void setDurability(int newDurability) { durability = newDurability; }
+    Weapon() : m_name("None"), m_atk(0), m_durability(0) {}  
+    Weapon(string t_name, int t_atk) : m_name(t_name), m_atk(t_atk), m_durability(99)
+    {
+      setWeaponType(t_atk);
+    }
 
+    void setDurability(int t_durability) { m_durability = t_durability; }
+    void setWeaponType(int t_atk)
+    {   
+        if (t_atk <= 3) { m_type = "Dagger"; }
+        else if (t_atk <= 6) { m_type = "Sword"; }
+        else if (t_atk <= 9) { m_type = "Spear"; }
+        else if (t_atk == 10) { m_type = "Claymore"; }
+        else { m_type = ""; } 
+    };
 
-    string getName() const { return name; };
-    int getAtk() const { return atk; };
-    int getDurability() const { return durability; }
+    string getName() const { return m_name; }
+    string getType() const { return m_type; }
+    int getAtk() const { return m_atk; }
+    int getDurability() const { return m_durability; }
     
   private:
-    string name;
-    int atk;
-    int durability;
+    string m_name;
+    string m_type;
+    int m_atk;
+    int m_durability;
 };
 
 #endif
