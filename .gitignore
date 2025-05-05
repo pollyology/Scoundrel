@@ -4,7 +4,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 .DS_Store
-*.out
+Game.out
+obj/
 
 # User-specific files
 *.rsuser
